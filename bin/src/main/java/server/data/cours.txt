@@ -1,0 +1,6 @@
+IFT1015	Programmation1	Automne
+IFT1025	Programmation2	Hiver
+IFT2255	Genie_Logiciel	Automne
+IFT1227	Architecture_des_ordinateurs	Automne
+IFT2256	Base_de_donnees	Ete
+IFT2125	Algorithmique	Hiver
