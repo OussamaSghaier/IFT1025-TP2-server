@@ -1,7 +1,8 @@
 package server;
 
 import javafx.util.Pair;
-
+import java.util.ArrayList;
+import java.util.List;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -91,7 +92,26 @@ public class Server {
      @param arg la session pour laquelle on veut récupérer la liste des cours
      */
     public void handleLoadCourses(String arg) {
-        // TODO: implémenter cette méthode
+    	try (BufferedReader br = new BufferedReader(new FileReader("IFT1025-TP2-server/src/main/java/server/data/cours.txt"))) {
+            List<String> lines = new ArrayList<>();
+            String line;
+            while ((line = br.readLine()) != null) {
+                lines.add(line);
+            }
+
+            List<String> filteredLines = new ArrayList<>();
+            for (String l : lines) {
+                String[] parts = l.split("\t");
+                if (parts.length >= 3 && parts[2].equals(arg)) {
+                    filteredLines.add(l);
+                }
+            }
+            System.out.println("Sending courses for session " + arg + " to client");
+            System.out.println(filteredLines);
+            objectOutputStream.writeObject(filteredLines);
+        } catch (IOException e) {
+            System.err.println("Error reading file or writing object to stream: " + e.getMessage());
+        }
     }
 
     /**
