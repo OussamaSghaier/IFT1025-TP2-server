@@ -1,6 +1,7 @@
 package server;
 
 import javafx.util.Pair;
+import server.models.RegistrationForm;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -9,7 +10,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
-
+import java.io.FileWriter;
+// i imported FileWriter in addition to complete my handleRegistration() method
 public class Server {
 
     public final static String REGISTER_COMMAND = "INSCRIRE";
@@ -100,7 +102,22 @@ public class Server {
      La méthode gére les exceptions si une erreur se produit lors de la lecture de l'objet, l'écriture dans un fichier ou dans le flux de sortie.
      */
     public void handleRegistration() {
-        // TODO: implémenter cette méthode
+        try {
+            RegistrationForm form = (RegistrationForm) objectInputStream.readObject();
+
+            // Open file for appending
+            FileWriter writer = new FileWriter("registrations.txt", true);
+
+            // Write registration form to file
+            writer.write(form.toString() + "\n");
+            writer.close();
+
+            // Send success message to client and manages and shows exceptions in case of errors
+            objectOutputStream.writeObject("Inscription réussie");
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
     }
+
 }
 
