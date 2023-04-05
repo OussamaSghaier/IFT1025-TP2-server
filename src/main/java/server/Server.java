@@ -10,9 +10,17 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+/**
+ * Cette classe est en charge de la création, la gestion et la communication du serveur.
+ */
 public class Server {
-
+    /**
+     * Commande pour s'inscrire
+     */
     public final static String REGISTER_COMMAND = "INSCRIRE";
+    /**
+     * Commande pour voir les cours disponibles
+     */
     public final static String LOAD_COMMAND = "CHARGER";
     private final ServerSocket server;
     private Socket client;
@@ -20,22 +28,44 @@ public class Server {
     private ObjectOutputStream objectOutputStream;
     private final ArrayList<EventHandler> handlers;
 
+    /**
+     * Constructeur de la classe Server en charge d'initialiser le serveur et
+     * de définir la liste d'EventHandler qui définit les différents évènements à traiter
+     *
+     * @param port port spécifié
+     * @throws IOException
+     */
     public Server(int port) throws IOException {
         this.server = new ServerSocket(port, 1);
         this.handlers = new ArrayList<EventHandler>();
         this.addEventHandler(this::handleEvents);
     }
 
+    /**
+     * Fonction qui permet d'ajouter des EventHandler.
+     *
+     * @param h handler
+     */
     public void addEventHandler(EventHandler h) {
         this.handlers.add(h);
     }
 
+    /**
+     *  Appelle la fonction `handle()` de tous les
+     *  handlers définis avec la commande et l'argument spécifié.
+     *
+     * @param cmd commande spécifié
+     * @param arg argument de la commande
+     */
     private void alertHandlers(String cmd, String arg) {
         for (EventHandler h : this.handlers) {
             h.handle(cmd, arg);
         }
     }
 
+    /**
+     * Fonction qui permet de démarrer le serveur.
+     */
     public void run() {
         while (true) {
             try {
@@ -52,6 +82,13 @@ public class Server {
         }
     }
 
+    /**
+     * Cette fonction agit en tant que boucle d'évènements qui attends que l'utilisateur
+     * envoie une commande pour qu'elle soit traitée.
+     *
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
     public void listen() throws IOException, ClassNotFoundException {
         String line;
         if ((line = this.objectInputStream.readObject().toString()) != null) {
@@ -62,6 +99,12 @@ public class Server {
         }
     }
 
+    /**
+     * Cette fonction permet de distinguer la commande de l'argument
+     *
+     * @param line ligne de commande entrée par l'utilisateur
+     * @return une combinaison avec cmd comme clé et args comme valeur
+     */
     public Pair<String, String> processCommandLine(String line) {
         String[] parts = line.split(" ");
         String cmd = parts[0];
@@ -69,12 +112,24 @@ public class Server {
         return new Pair<>(cmd, args);
     }
 
+    /**
+     * Cette fonction permet au serveur de se déconnecter.
+     *
+     * @throws IOException
+     */
     public void disconnect() throws IOException {
         objectOutputStream.close();
         objectInputStream.close();
         client.close();
     }
 
+    /**
+     * Cette fonction fait appel aux méthodes handleRegistration ou handleLoadCourses si
+     * la commande est équivalent à l'attribut REGISTER_COMMAND ou LOAD_COMMAND.
+     *
+     * @param cmd commande spécifié
+     * @param arg argument de la commande
+     */
     public void handleEvents(String cmd, String arg) {
         if (cmd.equals(REGISTER_COMMAND)) {
             handleRegistration();
