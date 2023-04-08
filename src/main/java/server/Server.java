@@ -1,10 +1,11 @@
 package server;
 
 import javafx.util.Pair;
+import server.models.Course;
+import server.models.RegistrationForm;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
+
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -113,7 +114,7 @@ public class Server {
     }
 
     /**
-     * Cette fonction permet au serveur de se déconnecter.
+     * Cette fonction permet au client de se déconnecter.
      *
      * @throws IOException
      */
@@ -147,15 +148,82 @@ public class Server {
      */
     public void handleLoadCourses(String arg) {
         // TODO: implémenter cette méthode
+        try {
+            //Récupère les données du fichier cours.txt
+            String fileName = "src/main/java/server/data/cours.txt";
+            FileReader fr = new FileReader(fileName);
+            BufferedReader reader = new BufferedReader(fr);
+            String s;
+            //Arraylist Contenant les cours disponibles
+            ArrayList <Course> listeCours = new ArrayList<Course>();
+
+            while ((s = reader.readLine()) != null) {
+                String[] infoCours = s.split("\t");
+                //Création des objets de chaque cours
+                String code = infoCours[0]; String name = infoCours[1];  String session = infoCours[2];
+                Course cours = new Course(name, code, session);
+                //filtre les cours spécifié par le client
+                if (cours.getSession().equals(arg)) {
+                    listeCours.add(cours);
+                }
+            }
+            reader.close();
+            //Envoi au client
+            objectOutputStream.writeObject(listeCours);
+            objectOutputStream.flush();
+
+        } catch (FileNotFoundException ex) {
+            System.out.println("Erreur à l'ouverture du fichier");
+        } catch (IOException ex) {
+            System.out.println("Erreur à l'écriture de l'objet");
+        }
+
+
     }
 
     /**
      Récupérer l'objet 'RegistrationForm' envoyé par le client en utilisant 'objectInputStream', l'enregistrer dans un fichier texte
-     et renvoyer un message de confirmation au client.
+     et renvoyer un message de confirmation au client.tr
      La méthode gére les exceptions si une erreur se produit lors de la lecture de l'objet, l'écriture dans un fichier ou dans le flux de sortie.
      */
     public void handleRegistration() {
+
         // TODO: implémenter cette méthode
+        try {
+
+            RegistrationForm inscription = null;
+            //Attente de l'envoi du RegistrationForm
+            while (inscription == null){
+                inscription = (RegistrationForm)objectInputStream.readObject();
+
+                //Envoi de la fiche d'inscription dans le fichier inscription.txt
+                String ficheInscription = inscription.getCourse().getSession() +"\t"+
+                                          inscription.getCourse().getCode()+"\t"+
+                                          inscription.getMatricule()+"\t"+
+                                          inscription.getPrenom() +"\t"+
+                                          inscription.getNom()+"\t"+
+                                          inscription.getEmail();
+                String fileName = "src/main/java/server/data/inscription.txt";
+                FileWriter fw = new FileWriter(fileName);
+                BufferedWriter writer = new BufferedWriter(fw);
+                writer.write(ficheInscription);
+                writer.close();
+
+                //Envoi message de confirmation
+                String confirmation = "Félicitations! Inscription réussie de "+
+                                        inscription.getPrenom() + " au cours de " +
+                                        inscription.getCourse().getCode() + ".";
+                objectOutputStream.writeObject(confirmation);
+                objectOutputStream.flush();
+            }
+
+
+        }catch(ClassNotFoundException ex){
+            System.out.println("Erreur: La classe lue n'existe pas dans le programme");
+        }catch(IOException ex){
+            ex.printStackTrace();
+            System.out.println("Erreur à la lecture du fichier");
+        }
     }
 }
 
