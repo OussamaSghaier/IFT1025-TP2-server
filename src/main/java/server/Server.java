@@ -197,14 +197,14 @@ public class Server {
                 inscription = (RegistrationForm)objectInputStream.readObject();
 
                 //Envoi de la fiche d'inscription dans le fichier inscription.txt
-                String ficheInscription = inscription.getCourse().getSession() +"\t"+
-                                          inscription.getCourse().getCode()+"\t"+
-                                          inscription.getMatricule()+"\t"+
-                                          inscription.getPrenom() +"\t"+
-                                          inscription.getNom()+"\t"+
-                                          inscription.getEmail();
+                String ficheInscription =  "\n"+  inscription.getCourse().getSession() +"\t"+
+                                                inscription.getCourse().getCode()+"\t"+
+                                                inscription.getMatricule()+"\t"+
+                                                inscription.getPrenom() +"\t"+
+                                                inscription.getNom()+"\t"+
+                                                inscription.getEmail() ;
                 String fileName = "src/main/java/server/data/inscription.txt";
-                FileWriter fw = new FileWriter(fileName);
+                FileWriter fw = new FileWriter(fileName, true);
                 BufferedWriter writer = new BufferedWriter(fw);
                 writer.write(ficheInscription);
                 writer.close();
