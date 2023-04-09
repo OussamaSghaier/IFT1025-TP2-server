@@ -1,14 +1,15 @@
 package server;
 
 import javafx.util.Pair;
+import server.models.Course;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class Server {
 
@@ -84,15 +85,59 @@ public class Server {
     }
 
     /**
-     Lire un fichier texte contenant des informations sur les cours et les transofmer en liste d'objets 'Course'.
+     Lire un fichier texte contenant des informations sur les cours et les transformer en liste d'objets 'Course'.
      La méthode filtre les cours par la session spécifiée en argument.
      Ensuite, elle renvoie la liste des cours pour une session au client en utilisant l'objet 'objectOutputStream'.
      La méthode gère les exceptions si une erreur se produit lors de la lecture du fichier ou de l'écriture de l'objet dans le flux.
      @param arg la session pour laquelle on veut récupérer la liste des cours
      */
     public void handleLoadCourses(String arg) {
-        // TODO: implémenter cette méthode
+        List<Course> courses = new ArrayList<>();
+
+        try {
+            // Lire le fichier cours.txt
+            BufferedReader reader = new BufferedReader(new FileReader("cours.txt"));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                // Transformer chaque ligne en objet Course et l'ajouter à la liste
+                Course course = parseCourse(line);
+                courses.add(course);
+            }
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Filtrer les cours selon la session donnée en argument
+        List<Course> filteredCourses = courses.stream()
+                .filter(course -> course.getSession().equals(arg))
+                .collect(Collectors.toList());
+
+        // Envoyer la liste des objets Course au client via le socket en utilisant objectOutputStream
+        try {
+            Socket socket = this.client;
+                    ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+            objectOutputStream.writeObject(filteredCourses);
+            objectOutputStream.flush();
+            objectOutputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
+
+    private Course parseCourse(String line) {
+        // Séparer les éléments de la ligne en utilisant la tabulation
+        String[] elements = line.split("\t");
+
+        // Créer un objet Course avec les éléments de la ligne
+        String name = elements[0];
+        String code = elements[1];
+        String session = elements[2];
+        Course course = new Course(name, code, session);
+
+        return course;
+    }
+
 
     /**
      Récupérer l'objet 'RegistrationForm' envoyé par le client en utilisant 'objectInputStream', l'enregistrer dans un fichier texte
