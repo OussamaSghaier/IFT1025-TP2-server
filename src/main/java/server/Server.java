@@ -183,22 +183,41 @@ public class Server {
      @throws IOException
      @throws ClassNotFoundException
     */
-    public void handleRegistration() {
+    public void handleRegistration(String arg) {
+        System.out.println("Receiving registration form from client");
+        System.out.println("arg = " + arg);
         try {
-            RegistrationForm form = (RegistrationForm) objectInputStream.readObject();
-            System.out.println("Received registration form from client");
-            System.out.println(form);
-            try (BufferedWriter bw = new BufferedWriter(new FileWriter("src/main/java/server/data/inscriptions.txt", true))) {
-                bw.write(form.toString());
-                bw.newLine();
-                bw.flush();
-            } catch (IOException e) {
-                System.err.println("Error writing to file: " + e.getMessage());
+
+            RegistrationForm form = null;
+            //Attente de l'envoi du RegistrationForm
+            while (form == null) {
+                form = (RegistrationForm) objectInputStream.readObject();
+           
+                // Store the registration form data in a file
+                String registrationData = "\n" + form.getCourse().getSession() + "\t" +
+                                           form.getCourse().getCode() + "\t" +
+                                           form.getMatricule() + "\t" +
+                                           form.getPrenom() + "\t" +
+                                           form.getNom() + "\t" +
+                                           form.getEmail();
+                String fileName = "src/main/java/server/data/inscription.txt";
+                FileWriter fw = new FileWriter(fileName, true);
+                BufferedWriter writer = new BufferedWriter(fw);
+                writer.write(registrationData);
+                writer.close();
+           
+                // Send a confirmation message to the client
+                String confirmationMsg = "Congratulations! " + form.getPrenom() + ", you have successfully registered for the course " + form.getCourse().getCode() + ".";
+                objectOutputStream.writeObject(confirmationMsg);
+                objectOutputStream.flush();
             }
-            objectOutputStream.writeObject("Inscription réussie!");
-        } catch (IOException | ClassNotFoundException e) {
-            System.err.println("Error reading object from stream: " + e.getMessage());
+
+
+        }catch(ClassNotFoundException ex){
+            System.out.println("Erreur: La classe lue n'existe pas dans le programme");
+        }catch(IOException ex){
+            ex.printStackTrace();
+            System.out.println("Erreur à la lecture du fichier");
         }
     }
 }
-
