@@ -10,69 +10,77 @@ import java.util.Scanner;
 
 public class SimpleClient {
     public static void main(String[] args) {
-        System.out.println("*** Bienvenue au portail d'inscription de cours de l'Udem ***");
-        //Création du client
-        SimpleClient client = new SimpleClient();
-        client.messageAccueil();
-
-
-        Scanner scanner = new Scanner(System.in);
         int etat = 0;
-        String session = null;
-        boolean run = true;
-        while (run) {
-            //Choix session
-            if(etat == 0){
-                int choix1 = Integer.parseInt(scanner.nextLine());
-                if(choix1 == 1 || choix1 == 2 || choix1 == 3){
-                    switch(choix1){
-                        case 1: session = "Automne"; break;
-                        case 2: session = "Hiver"  ; break;
-                        case 3: session = "Ete"    ;
+        try{
+            System.out.println("*** Bienvenue au portail d'inscription de cours de l'Udem ***");
+            //Création du client
+            SimpleClient client = new SimpleClient();
+            client.messageAccueil();
+
+
+            Scanner scanner = new Scanner(System.in);
+            String session = null;
+            boolean run = true;
+            while (run) {
+                //Choix session
+                if(etat == 0){
+                    int choix1 = Integer.parseInt(scanner.nextLine());
+                    if(choix1 == 1 || choix1 == 2 || choix1 == 3){
+                        switch(choix1){
+                            case 1: session = "Automne"; break;
+                            case 2: session = "Hiver"  ; break;
+                            case 3: session = "Ete"    ;
+                        }
+                        client.choixSession(choix1);
+                        etat = 1;
+                    }else{
+                        System.out.println("Entrée invalide: Veuillez recommencer.");
+                        System.out.print("> Choix: ");
                     }
-                    client.choixSession(choix1);
-                    etat = 1;
-                }else{
-                    throw new IllegalArgumentException("Entrée invalide");
+                }
+                //Choix inscription ou sélection d'une autre session
+                if(etat == 1){
+                    int choix2 = Integer.parseInt(scanner.nextLine());
+                    if(choix2 == 1){
+                        client.messageAccueil();
+                        etat = 0;
+
+                    }else if(choix2 == 2){
+                        etat = 2;
+                    }else{
+                        System.out.println("Entrée invalide: Veuillez recommencer.");
+                        System.out.print("> Choix: ");
+                    }
+                }
+                //Envoi de l'inscription
+                if(etat == 2){
+
+                    System.out.print("\n"+"Veuiller saisir votre prénom: ");
+                    String prenom = scanner.nextLine();
+                    System.out.print("Veuiller saisir votre nom: ");
+                    String nom = scanner.nextLine();
+                    System.out.print("Veuiller saisir votre email: ");
+                    String email = scanner.nextLine();
+                    System.out.print("Veuiller saisir votre matricule: ");
+                    String matricule = scanner.nextLine();
+                    System.out.print("Veuiller saisir le code du cours: ");
+                    String code = scanner.nextLine();
+
+                    if(!client.verifEmail(email)){
+                      throw new IllegalArgumentException();
+                    }
+                    else if(!client.verifCodeCours(code, session)){
+                        throw new IllegalArgumentException();
+                    }else{
+                        client.inscription(nom, prenom, email, matricule, session, code);
+                        run = false;
+                    }
+
+
                 }
             }
-            //Choix inscription ou sélection d'une autre session
-            if(etat == 1){
-                int choix2 = Integer.parseInt(scanner.nextLine());
-                if(choix2 == 1){
-                    client.messageAccueil();
-                    etat = 0;
-
-                }else if(choix2 == 2){
-                    etat = 2;
-                }else{
-                    throw new IllegalArgumentException("Entrée invalide");
-                }
-            }
-            //Envoi de l'inscription
-            if(etat == 2){
-
-                System.out.print("\n"+"Veuiller saisir votre prénom: ");
-                String prenom = scanner.nextLine();
-                System.out.print("Veuiller saisir votre nom: ");
-                String nom = scanner.nextLine();
-                System.out.print("Veuiller saisir votre email: ");
-                String email = scanner.nextLine();
-                System.out.print("Veuiller saisir votre matricule: ");
-                String matricule = scanner.nextLine();
-                System.out.print("Veuiller saisir le code du cours: ");
-                String code = scanner.nextLine();
-
-                if(!client.verifEmail(email)){
-                  throw new IllegalArgumentException("L'addrese courriel rentré est invalide");
-                }
-                if(!client.verifCodeCours(code, session)){
-                    throw new IllegalArgumentException("Le code du cours rentré est invalide");
-                }else{
-                    client.inscription(nom, prenom, email, matricule, session, code);
-                }
-                run = false;
-            }
+        }catch(IllegalArgumentException ex){
+            System.out.println("\n"+"Inscription invalide");
         }
     }
     //Fonction qui affiche le message d'accueil

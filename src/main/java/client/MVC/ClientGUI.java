@@ -19,7 +19,9 @@ import server.models.Course;
 
 import java.util.ArrayList;
 
-
+/**
+ * Classe en charge de créer tout l'aspect visuel du GUI et de démarrer le client.
+ */
 public class ClientGUI extends Application {
 
     private Text textPrenom, textNom, textEmail, textMatricule;
@@ -34,44 +36,113 @@ public class ClientGUI extends Application {
     private ChoiceBox<String> session;
     private Controleur controleur;
 
+    /**
+     * Cette fonction permet d'ajouter des cours à la liste de cours d'une session donnée.
+     * @param listServer liste de cours d'une session donnée
+     */
     public void addClass(ArrayList<Course> listServer){
         for (int i = 0; i < listServer.size(); i++) {
             this.cours.getItems().add(listServer.get(i));
 
         }
     }
+
+    /**
+     * Cette fonction permet de créer un message d'erreur.
+     * @param message message qui s'affiche pour l'utilisateur
+     */
+    public void errorAlert(String message){
+        Alert emptyField = new Alert(Alert.AlertType.ERROR);
+        emptyField.setTitle("Error");
+        emptyField.setHeaderText("Error");
+        emptyField.setContentText(message);
+        emptyField.showAndWait();
+    }
+
+    /**
+     * Cette fonction permet de récupérer l'objet email.
+     * @return l'objet TextField email
+     */
     public TextField getEmail(){
         return this.email;
     }
+
+    /**
+     * Cette fonction permet de récupérer l'objet prenom
+     * @return l'objet TextField prenom
+     */
     public TextField getPrenom(){
         return this.prenom;
     }
+
+    /**
+     * Cette fonction permet de récupérer l'objet nom
+     * @return l'objet TextField nom
+     */
     public TextField getNom(){
         return this.nom;
     }
+
+    /**
+     * Cette fonction permet de récupérer l'objet matricule
+     * @return l'objet TextField matricule
+     */
     public TextField getMatricule(){
         return this.matricule;
     }
+
+    /**
+     * Cette fonction permet de récupérer le texte du prénom.
+     * @return String prenom
+     */
     public String getTextPrenom(){
         return this.prenom.getText();
     }
+
+    /**
+     * Cette fonction permet de récupérer le texte du nom.
+     * @return String nom
+     */
     public String getTextNom(){
         return this.nom.getText();
     }
+
+    /**
+     * Cette fonction permet de récupérer le texte du email.
+     * @return String email
+     */
     public String getTextEmail(){
         return this.email.getText();
     }
+
+    /**
+     * Cette fonction permet de récupérer le texte de la matricule.
+     * @return String matricule
+     */
     public String getTextMatricule(){
         return this.matricule.getText();
     }
+
+    /**
+     * Cette fonction permet de récupérer l'objet cours.
+     * @return l'objet Tableview cours
+     */
     public TableView getCours(){
         return this.cours;
     }
 
-
+    /**
+     * Cette fonction démarre l'application.
+     * @param args argument du terminal
+     */
     public static void main(String[] args){
         ClientGUI.launch();
     }
+
+    /**
+     * Cette fonction crée tout l'aspect visuel de l'application.
+     * @param primaryStage fenêtre de l'application
+     */
     public void start(Stage primaryStage){
         try {
             controleur = new Controleur(this);
@@ -87,8 +158,7 @@ public class ClientGUI extends Application {
             leftSide.setStyle("-fx-background-color: #f3f4e7");
             rightSide.setStyle("-fx-background-color: #f3f4e7");
 
-            //leftSide
-
+            //Côté gauche
             //Elements
             listeCours             = new Label("Liste des cours");
             cours                  = new TableView<>();
@@ -104,49 +174,44 @@ public class ClientGUI extends Application {
             code.prefWidthProperty().bind(cours.widthProperty().multiply(0.3));
             name.prefWidthProperty().bind(cours.widthProperty().multiply(0.7));
 
-
-
             cours.getColumns().add(code);
             cours.getColumns().add(name);
-
             container.getChildren().add(cours);
-
             session.getItems().add("Hiver");
             session.getItems().add("Été");
             session.getItems().add("Automne");
             session.setValue("Hiver");
-
-
             selectionSession.getChildren().add(session);
             selectionSession.getChildren().add(charge);
 
+            //Positionnement
             session.setLayoutY(13);
             session.setLayoutX(30);
             charge.setLayoutY(13);
             charge.setLayoutX(150);
-
+            //Couleur de fond
             container.setStyle("-fx-background-color: #f3f4e7");
             listeCours.setStyle("-fx-background-color:#f3f4e7");
             selectionSession.setStyle("-fx-background-color: #f3f4e7");
-
+            //Alignement
             container.setAlignment(Pos.BASELINE_CENTER);
             listeCours.setAlignment(Pos.CENTER);
-
-
+            //Taille
             listeCours.setPrefWidth(300);
             selectionSession.setPrefHeight(50);
             container.setPrefHeight(310);
             cours.setPrefWidth(275);
             cours.setPrefHeight(300);
             listeCours.setPrefHeight(40);
-
+            //Format texte
             listeCours.setFont(Font.font("arial", 20));
-
+            //Composition Côté gauche
             leftSide.getChildren().add(listeCours);
             leftSide.getChildren().add(container);
             leftSide.getChildren().add(selectionSession);
 
-            //rightSide
+            //Côté droit
+            //Éléments
             formulaireInscription  = new Label("Formulaire d'inscription");
             envoyer                = new Button("envoyer");
             prenom                 = new TextField();
@@ -168,14 +233,14 @@ public class ClientGUI extends Application {
             rightSide.getChildren().add(textNom);
             rightSide.getChildren().add(envoyer);
             rightSide.getChildren().add(formulaireInscription);
-
+            //Format
             formulaireInscription.setFont(Font.font("arial", 20));
-
+            //Taille
             formulaireInscription.setPrefWidth(300);
             envoyer.setPrefWidth(95);
-
+            //Alignement
             formulaireInscription.setAlignment(Pos.CENTER);
-
+            //Positionnement
             prenom.setLayoutY(80);
             textPrenom.setLayoutY(95);
             nom.setLayoutY(80+40);
@@ -186,7 +251,6 @@ public class ClientGUI extends Application {
             textMatricule.setLayoutY(95+3*40);
             envoyer.setLayoutY(245);
             formulaireInscription.setLayoutY(10);
-
             prenom.setLayoutX(80);
             textPrenom.setLayoutX(20);
             nom.setLayoutX(80);
@@ -197,33 +261,26 @@ public class ClientGUI extends Application {
             textMatricule.setLayoutX(20);
             envoyer.setLayoutX(105);
 
+            //Composition finale
             root.getChildren().add(leftSide);
             root.getChildren().add(separator);
             root.getChildren().add(rightSide);
 
-
-
+            //event button charge
             charge.setOnAction((event) -> {
                 cours.getItems().setAll();
                 controleur.loadClasses(session.getValue());
             });
-
+            //event button envoyer
             envoyer.setOnAction((event) -> {
                 controleur.formulaireValide();
             });
 
-
-
-
             primaryStage.setTitle("Inscription UdeM");
             primaryStage.setScene(scene);
-            primaryStage.show(); // Important !
+            primaryStage.show();
         }catch(Exception ex){
             ex.printStackTrace();
         }
-
-
-
     }
-
 }
