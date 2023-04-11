@@ -20,6 +20,10 @@ public class Server {
      */
     public final static String LOAD_COMMAND = "CHARGER";
     /**
+     * Commande pour déconnecter le client
+     */
+    public final static String DISCONNECT_COMMAND = "DISCONNECT";
+    /**
      * Commande pour quitter le serveur
      */
     private final ServerSocket server;
@@ -78,7 +82,6 @@ public class Server {
                 objectInputStream = new ObjectInputStream(client.getInputStream());
                 objectOutputStream = new ObjectOutputStream(client.getOutputStream());
                 listen();
-                disconnect();
                 System.out.println("Client déconnecté!");
             } catch (Exception e) {
                 e.printStackTrace();
@@ -124,9 +127,16 @@ public class Server {
      */
     public void handleEvents(String cmd, String arg) {
         if (cmd.equals(REGISTER_COMMAND)) {
-            handleRegistration();
+            handleRegistration(arg);
         } else if (cmd.equals(LOAD_COMMAND)) {
             handleLoadCourses(arg);
+        } else if (cmd.equals(DISCONNECT_COMMAND)) {
+            System.out.println("Disconnecting client...");
+            try {
+                disconnect();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -154,9 +164,14 @@ public class Server {
                 }
             }
             System.out.println("Sending courses for session " + arg + " to client");
-            System.out.println(filteredLines);
+            br.close();
             objectOutputStream.writeObject(filteredLines);
-        } catch (IOException e) {
+            objectOutputStream.flush();
+        } 
+        catch (FileNotFoundException e) {
+            System.err.println("File not found: " + e.getMessage());
+        }
+        catch (IOException e) {
             System.err.println("Error reading file or writing object to stream: " + e.getMessage());
         }
     }
